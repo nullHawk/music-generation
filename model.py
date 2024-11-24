@@ -10,10 +10,11 @@ class MusicGenerationLSTM(nn.Module):
         self.fc = nn.Linear(hidden_size, num_classes)
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     
-    def forward(self, x):
-        h0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(self.device)
-        c0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(self.device)
-        
+    def forward(self, x, h0=None, c0=None):
+        if h0 is None:
+            h0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(self.device)
+        if c0 is None:
+            c0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(self.device)
         out, _ = self.lstm(x, (h0, c0))
         out = self.fc(out[:, -1, :])
         return out
