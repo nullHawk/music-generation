@@ -5,7 +5,7 @@ import torch.optim as optim
 from torch.autograd import Variable
 
 class MusicLSTM(nn.Module):
-    def __init__(self, input_size, hidden_size, output_size, model='gru', num_layers=1, dropout_p=0):
+    def __init__(self, input_size, hidden_size, output_size, model='lstm', num_layers=1, dropout_p=0):
         super(MusicLSTM, self).__init__()
         self.model = model
         self.input_size = input_size

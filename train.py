@@ -2,6 +2,7 @@ import os
 import sys
 import time
 import random
+import json
 import numpy as np
 import matplotlib.pyplot as plt
 from model import MusicLSTM as MusicRNN
@@ -9,6 +10,8 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.autograd import Variable
+from utils import seq_to_tensor, load_vocab, save_vocab
+
 
 def logger(active=True):
     """Simple logging utility."""
@@ -56,7 +59,7 @@ class DataLoader:
         log(f"Total songs: {len(self.data)}")
         log(f"Training songs: {len(self.train_idxs)}")
         log(f"Validation songs: {len(self.valid_idxs)}")
-
+    
     def _load_chars(self, input_file):
         """Load unique characters from the input file."""
         with open(input_file, 'r') as f:
@@ -205,7 +208,7 @@ def train_model(config, data_loader, model, optimizer, loss_function):
                 'epoch': epoch,
             }
             os.makedirs('checkpoint', exist_ok=True)
-            torch.save(state, f'./checkpoint/ckpt_mdl_{config.MODEL_TYPE}_ep_{config.N_EPOCHS}_hsize_{config.HIDDEN_SIZE}_dout_{config.DROPOUT_P}.t{epoch}')
+            torch.save(model, f'checkpoint/ckpt_mdl_{config.MODEL_TYPE}_ep_{config.N_EPOCHS}_hsize_{config.HIDDEN_SIZE}_dout_{config.DROPOUT_P}.t{epoch}')
 
     return losses, v_losses
 
@@ -225,9 +228,11 @@ def generate_song(model, data_loader, prime_str='<start>', max_len=1000, temp=0.
     model.eval()
     model.init_hidden()
     creation = prime_str
+    char_idx, char_list = load_vocab()
 
     # Build up hidden state
-    prime = data_loader.seq_to_tensor(creation)
+    prime = seq_to_tensor(creation, char_idx)
+    print(prime)
 
     with torch.no_grad():
         for _ in range(len(prime)-1):
@@ -243,7 +248,7 @@ def generate_song(model, data_loader, prime_str='<start>', max_len=1000, temp=0.
 
             # Sample from distribution
             next_char_idx = torch.multinomial(dist, 1).item()
-            next_char = data_loader.char_idx[next_char_idx]
+            next_char = char_idx[next_char_idx]
 
             creation += next_char
             prime = torch.cat([prime, torch.tensor([next_char_idx])], dim=0)
@@ -256,6 +261,7 @@ def generate_song(model, data_loader, prime_str='<start>', max_len=1000, temp=0.
 def main():
     """Main execution function."""
     # Set up configuration and data
+    global model, data_loader
     config = Config()
     data_loader = DataLoader(config.INPUT_FILE, config)
 
@@ -279,6 +285,7 @@ def main():
 
     # Plot losses
     plot_losses(losses, v_losses)
+    save_vocab(data_loader)
 
     # Generate a song
     generated_song = generate_song(model, data_loader)

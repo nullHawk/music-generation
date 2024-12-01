@@ -1,7 +1,8 @@
 import os
 import sys
 import time
-import math
+import json
+import torch
 
 # Only do the function below if verbose
 def logger(verbose):
@@ -67,3 +68,24 @@ def format_time(seconds):
     if f == '':
         f = '0ms'
     return f
+
+def save_vocab(data_loader, vocab_filename="config/vocab.json"):
+    """Save vocabulary to a JSON file."""
+    vocab = {
+        'char_idx': data_loader.char_idx,
+        'char_list': data_loader.char_list
+    }
+    with open(vocab_filename, 'w') as f:
+        json.dump(vocab, f)
+
+def load_vocab(vocab_filename='config/vocab.json'):
+    with open(vocab_filename, 'r') as f:
+        vocab = json.load(f)
+    return vocab['char_idx'], vocab['char_list']
+
+def seq_to_tensor(seq, char_idx):
+        """Convert sequence to tensor."""
+        out = torch.zeros(len(seq)).long()
+        for i, c in enumerate(seq):
+            out[i] = char_idx.index(c)
+        return out
