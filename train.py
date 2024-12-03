@@ -232,7 +232,6 @@ def generate_song(model, data_loader, prime_str='<start>', max_len=1000, temp=0.
 
     # Build up hidden state
     prime = seq_to_tensor(creation, char_idx)
-    print(prime)
 
     with torch.no_grad():
         for _ in range(len(prime)-1):
