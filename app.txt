@@ -1,0 +1,3 @@
+libfluidsynth-dev
+libsndfile1
+abc2midi  
