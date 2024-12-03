@@ -24,13 +24,30 @@ class GradioApp():
         self.model.eval()
 
         #Setup Interface
-        self.input = gr.Button("")
-        self.output = gr.Audio(label="Generated Music")
-        # self.output = gr.Textbox("")
-        self.interface = gr.Interface(fn=self.generate_music, inputs=self.input, outputs=self.output, title="AI Music Generator", description="Generate a new song using a trained RNN model.")
-    
+        # self.input = gr.Button("Generate Music")
+        # self.output = gr.Audio(label="Generated Music")
+        # # self.output = gr.Textbox("")
+        # self.interface = gr.Interface(
+        #     fn=self.generate_music,
+        #     inputs=self.input,
+        #     outputs=self.output,
+        #     title="AI Music Generator",
+        #     description="Generate a new song using a trained RNN model."
+        # )
     def launch(self):
-        self.interface.launch()
+        # Define Gradio interface without a clear button
+        with gr.Blocks() as demo:
+            gr.Markdown("# AI Music Generator")
+            gr.Markdown("Click the button below to generate a new random song using a trained RNN model.")
+            
+            generate_button = gr.Button("Generate Music")
+            output_audio = gr.Audio(label="Generated Music")
+            
+            generate_button.click(self.generate_music, inputs=None, outputs=output_audio)
+        
+        demo.launch()
+    # def launch(self):
+    #     self.interface.launch()
 
     def generate_music(self, input):
         """Generate a new song using the trained model."""
