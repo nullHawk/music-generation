@@ -1,0 +1,4 @@
+music21
+midi2audio
+pyfluidsynth
+torch==2.5.1
